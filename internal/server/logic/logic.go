@@ -1,27 +1,33 @@
 package logic
 
+import "github.com/rs/zerolog/log"
 
-var pastScores = []float64{5.0, 4.0, 3.0, 2.0, 1.0}
+var pastScores = []float64{100.0, 1.0}
 
 func GetSize() float64 {
-	latestScore := pastScores[len(pastScores) - 1]
+	latestScore := pastScores[len(pastScores)-1]
 	var totalScore float64
-	for score, _ := range pastScores {
+	for _, score := range pastScores {
 		totalScore += float64(score)
 	}
 	avgScore := totalScore / float64(len(pastScores))
-	performance := latestScore - avgScore
+	performance := avgScore - latestScore
+
+	var size float64
 	if performance > 0.0 {
-		if size := 500.0 + performance * 50.0; size < 2000.0 {
-			return size
+		if s := 100.0 + performance*50.0; s < 4000.0 {
+			size = s
 		} else {
-			return 2000.0
+			size = 4000.0
+		}
+	} else if performance <= 0.0 {
+		size = 100.0 + performance*20.0
+		if size < 0.0 {
+			size = 1.0
 		}
 	}
-	if performance > -0.5 && performance <= 0.0 {
-		return 100.0 + performance * 20.0
-	}
-	return 10.0
+	log.Info().Msgf("performance: [%v]; size: [%v]\n", performance, size)
+	return size
 }
 
 func SetScore(newScore float64) bool {
